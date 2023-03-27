@@ -1,30 +1,39 @@
 package com.simplon.macdo.config;
 
-public class DatabaseConnection {
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 
-    private Connection conn;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
-    public void connect() {
+
+class DatabaseConnection {
+
+    @FXML
+    private Label myLabel;
+
+    public void initialize() {
         try {
-            String url = "jdbc:mysql://localhost:3306/mydatabase";
-            String username = "myusername";
-            String password = "mypassword";
-            conn = DriverManager.getConnection(url, username, password);
-            System.out.println("Connected to MySQL database.");
-        } catch (SQLException e) {
-            System.out.println("Failed to connect to MySQL database.");
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Connect to the database
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mcdonald", "root", "");
+
+            // Do something with the connection
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM menu_item");
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                myLabel.setText("There are " + count + " rows in the table.");
+            }
+
+            // Close the connection
+            connection.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    public void disconnect() {
-        try {
-            conn.close();
-            System.out.println("Disconnected from MySQL database.");
-        } catch (SQLException e) {
-            System.out.println("Failed to disconnect from MySQL database.");
-            e.printStackTrace();
-        }
-    }
-
 }
